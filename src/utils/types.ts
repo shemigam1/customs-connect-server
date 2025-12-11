@@ -32,14 +32,50 @@ export interface ISignup {
 //   // name: string;
 // };
 
-export interface IBooking {
+export interface IShipment {
+  trackingNumber: string;
+  sender: {
+    name: string;
+    address: string;
+    phoneNumber: string;
+  };
+  recipient: {
+    name: string;
+    address: string;
+    phoneNumber: string;
+  };
+  carrier: string;
+  weight: number;
+  description: string;
+  status: string;
+  currentLocation: string;
+  originCountry: string;
+  destinationCountry: string;
+  createdDate: Date;
+  estimatedDeliveryDate: Date;
+  actualDeliveryDate?: Date;
+  shippingCost: number;
+  orgId: string;
+  items: Schema.Types.ObjectId[];
+  shippingValue?: number;
+  shippingToll?: number;
+  officersAssigned?: Schema.Types.ObjectId[];
+}
+
+export interface IShipmentItem {
+  shipmentId: Schema.Types.ObjectId;
   name: string;
-  email: string;
-  date?: string;
-  month?: string;
-  booking_type: string;
-  booking_scope?: "daily" | "monthly";
-  slots?: number;
-  type_of_booking: string;
-  // is_active: boolean;
+  quantity: number;
+  weight: number;
+  description: string;
+  sku?: string;
+}
+
+export interface IShipmentDocument {
+  shipmentId: Schema.Types.ObjectId;
+  userId: Schema.Types.ObjectId;
+  documentType: string;
+  documentUrl: string;
+  uploadedAt: Date;
+  status: string;
 }
