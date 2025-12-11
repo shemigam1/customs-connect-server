@@ -70,3 +70,12 @@ export interface IShipmentItem {
   description: string;
   sku?: string;
 }
+
+export interface IShipmentDocument {
+  shipmentId: Schema.Types.ObjectId;
+  userId: Schema.Types.ObjectId;
+  documentType: string;
+  documentUrl: string;
+  uploadedAt: Date;
+  status: string;
+}
