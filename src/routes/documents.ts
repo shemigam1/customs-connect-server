@@ -4,6 +4,82 @@ import authMiddleWare from "../utils/authMiddleware";
 import { ResultFunction } from "../utils/utils";
 import { shipmentRouter } from "./shipments";
 
+/**
+ * @openapi
+ * /shipments/{id}/documents:
+ *  post:
+ *     tags:
+ *     - Documents
+ *     summary: Upload a document for a shipment
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Shipment ID
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *              type: object
+ *              required:
+ *                - documentType
+ *                - documentUrl
+ *              properties:
+ *                documentType:
+ *                  type: string
+ *                  enum: [proforma_invoice, ccvo, commercial_invoice, bill_of_lading, airway_bill, packing_list, form_m, sgd, insurance_certificate, import_duty_payment_evidence, soncap_certificate, paar, nafdac_certificate, product_certificate_of_conformity, quota_allocation_certificate, radiation_certificate]
+ *                documentUrl:
+ *                  type: string
+ *                  format: uri
+ *     responses:
+ *       201:
+ *         description: Document created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: shipment document created
+ *                 code:
+ *                   type: integer
+ *                   example: 201
+ *                 data:
+ *                   $ref: '#/components/schemas/Document'
+ *       400:
+ *         description: Invalid input or document type
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ *       404:
+ *         description: Shipment not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ */
 shipmentRouter.post("/:id/documents", authMiddleWare, async (req, res) => {
   try {
     const { id } = req.params;
@@ -67,6 +143,72 @@ shipmentRouter.post("/:id/documents", authMiddleWare, async (req, res) => {
   }
 });
 
+/**
+ * @openapi
+ * /shipments/{id}/documents/{docId}:
+ *  get:
+ *     tags:
+ *     - Documents
+ *     summary: Get a specific document
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Shipment ID
+ *       - in: path
+ *         name: docId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Document ID
+ *     responses:
+ *       200:
+ *         description: Document retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: document retrieved
+ *                 code:
+ *                   type: integer
+ *                   example: 200
+ *                 data:
+ *                   $ref: '#/components/schemas/Document'
+ *       403:
+ *         description: Document mismatch (does not belong to shipment)
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ *       404:
+ *         description: Shipment or Document not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ */
 shipmentRouter.get(
   "/:id/documents/:docId",
   authMiddleWare,

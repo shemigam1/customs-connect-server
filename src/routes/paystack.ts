@@ -19,6 +19,7 @@ function calculateAmountInKobo(nairaAmount: number): number {
  *     tags:
  *     - Payments
  *     summary: Initialize a payment
+ *     description: Initializes a Paystack transaction.
  *     requestBody:
  *      required: true
  *      content:
@@ -31,17 +32,51 @@ function calculateAmountInKobo(nairaAmount: number): number {
  *              properties:
  *                email:
  *                  type: string
+ *                  format: email
  *                  default: jane.doe@example.com
  *                amount:
  *                  type: number
  *                  default: 1000
+ *                  description: Amount in Naira (will be validated to match fixed amount if required)
  *     responses:
  *       200:
- *         description: Payment initialized
+ *         description: Payment initialized successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Authorization URL created
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     authorization_url:
+ *                       type: string
+ *                     access_code:
+ *                       type: string
+ *                     reference:
+ *                       type: string
  *       400:
- *         description: Invalid amount
+ *         description: Invalid amount or bad request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Invalid amount. Amount must be 1000 NGN.
  *       500:
  *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  */
 paymentRouter.post("/init", async (req, res) => {
   try {
@@ -89,6 +124,7 @@ paymentRouter.post("/init", async (req, res) => {
  *     tags:
  *     - Payments
  *     summary: Verify a payment
+ *     description: Verifies a Paystack transaction reference.
  *     requestBody:
  *      required: true
  *      content:
@@ -100,13 +136,47 @@ paymentRouter.post("/init", async (req, res) => {
  *              properties:
  *                reference:
  *                  type: string
+ *                  default: "T1234567890"
  *     responses:
  *       200:
- *         description: Payment verified
+ *         description: Payment verified successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Verification successful
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     status:
+ *                       type: string
+ *                       example: success
+ *                     reference:
+ *                       type: string
+ *                     amount:
+ *                       type: number
  *       400:
- *         description: Invalid transaction
+ *         description: Invalid transaction or missing reference
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Invalid Transaction
  *       500:
  *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  */
 paymentRouter.post("/verify", async (req, res) => {
   try {

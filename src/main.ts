@@ -8,6 +8,8 @@ import cors from "cors";
 import authRouter from "./routes/auth";
 import { paymentRouter } from "./routes/paystack";
 import messagesRouter from "./routes/messages";
+import { shipmentRouter } from "./routes/shipments";
+import "./routes/documents"; // Attach document routes
 import { initSocket } from "./socket";
 
 const app = express();
@@ -33,6 +35,7 @@ app.get("/health", (req: Request, res: Response) => {
 
 app.use("/payments", paymentRouter);
 app.use("/auth", authRouter);
+app.use("/shipments", shipmentRouter);
 app.use("/", messagesRouter);
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {

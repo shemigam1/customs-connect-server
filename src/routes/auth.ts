@@ -13,6 +13,7 @@ const authRouter = Router();
  *     tags:
  *     - Auth
  *     summary: Login a user
+ *     description: Authenticates a user and returns a JWT token.
  *     requestBody:
  *      required: true
  *      content:
@@ -25,19 +26,71 @@ const authRouter = Router();
  *              properties:
  *                email:
  *                  type: string
+ *                  format: email
  *                  default: jane.doe@example.com
  *                password:
  *                  type: string
+ *                  format: password
  *                  default: stringPassword123
  *     responses:
  *       200:
  *         description: Login successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: login successful
+ *                 code:
+ *                   type: integer
+ *                   example: 200
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     token:
+ *                       type: string
+ *                     user:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                         email:
+ *                           type: string
+ *                         name:
+ *                           type: string
  *       400:
  *         description: Invalid email or password
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: invalid email or password
+ *                 code:
+ *                   type: integer
+ *                   example: 400
  *       422:
- *         description: Unprocessable entity
+ *         description: Unprocessable entity (Token generation failed)
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  *       500:
  *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  */
 authRouter.post("/login", async (req, res) => {
   try {
@@ -102,6 +155,7 @@ authRouter.post("/login", async (req, res) => {
  *     tags:
  *     - Auth
  *     summary: Register a new user
+ *     description: Creates a new user account.
  *     requestBody:
  *      required: true
  *      content:
@@ -121,9 +175,11 @@ authRouter.post("/login", async (req, res) => {
  *                  default: Jane Doe
  *                email:
  *                  type: string
+ *                  format: email
  *                  default: jane.doe@example.com
  *                password:
  *                  type: string
+ *                  format: password
  *                  default: stringPassword123
  *                phoneNumber:
  *                  type: string
@@ -137,10 +193,35 @@ authRouter.post("/login", async (req, res) => {
  *     responses:
  *       201:
  *         description: Signup successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: signup successful
+ *                 code:
+ *                   type: integer
+ *                   example: 201
+ *                 data:
+ *                   type: object
+ *                   description: Created user object (excluding password)
  *       400:
  *         description: Missing required fields or user already exists
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  *       500:
  *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  */
 authRouter.post(
   "/signup",

@@ -51,15 +51,38 @@ const upload = multer({
  *           type: string
  *     responses:
  *       200:
- *         description: List of messages
+ *         description: List of messages retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 messages:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Message'
+ *                 has_more:
+ *                   type: boolean
  *       401:
  *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  *       403:
  *         description: Access denied
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  *       500:
  *         description: Failed to fetch messages
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  */
-router.get('/shipments/:id/messages', authMiddleWare, async (req: Request, res: Response): Promise<any> => {
+router.get('/shipments/:id/messages', authMiddleWare, async (req, res): Promise<any> => {
     try {
         const { id: shipmentId } = req.params;
         const {
@@ -154,6 +177,66 @@ router.get('/shipments/:id/messages', authMiddleWare, async (req: Request, res: 
  *         description: Access denied
  *       500:
  *         description: Failed to upload file
+ */
+/**
+ * @openapi
+ * /shipments/{id}/messages/upload:
+ *  post:
+ *     tags:
+ *     - Messages
+ *     summary: Upload a message attachment
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Shipment ID
+ *     requestBody:
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: File uploaded successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 attachment:
+ *                   $ref: '#/components/schemas/Attachment'
+ *       400:
+ *         description: No file provided
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ *       403:
+ *         description: Access denied
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         description: Failed to upload file
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  */
 router.post(
     '/shipments/:id/messages/upload',

@@ -11,6 +11,87 @@ export const shipmentRouter = Router();
 // • GET /shipments/{id} — returns shipment with docs, messages, AI flags, anchor status.
 // • PATCH /shipments/{id}/assign — assign officer.
 
+/**
+ * @openapi
+ * /shipments:
+ *  post:
+ *     tags:
+ *     - Shipments
+ *     summary: Create a new shipment
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *              type: object
+ *              required:
+ *                - items
+ *              properties:
+ *                bl_number:
+ *                  type: string
+ *                form_m_no:
+ *                  type: string
+ *                containers:
+ *                  type: array
+ *                  items:
+ *                    type: string
+ *                origin_country:
+ *                  type: string
+ *                destination_port:
+ *                  type: string
+ *                items:
+ *                  type: array
+ *                  items:
+ *                    type: object
+ *                    properties:
+ *                      name:
+ *                        type: string
+ *                      quantity:
+ *                        type: number
+ *                      weight:
+ *                        type: number
+ *                      description:
+ *                         type: string
+ *     responses:
+ *       201:
+ *         description: Shipment created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: shipment created
+ *                 code:
+ *                   type: integer
+ *                   example: 201
+ *                 data:
+ *                   $ref: '#/components/schemas/Shipment'
+ *       400:
+ *         description: Invalid input
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ */
 shipmentRouter.post("/", authMiddleWare, async (req, res) => {
   try {
     const { items, ...shipmentData } = req.body;
@@ -56,6 +137,60 @@ shipmentRouter.post("/", authMiddleWare, async (req, res) => {
   }
 });
 
+/**
+ * @openapi
+ * /shipments/{id}:
+ *  get:
+ *     tags:
+ *     - Shipments
+ *     summary: Get shipment details
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Shipment ID
+ *     responses:
+ *       200:
+ *         description: Shipment retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: shipment retrieved
+ *                 code:
+ *                   type: integer
+ *                   example: 200
+ *                 data:
+ *                   $ref: '#/components/schemas/Shipment'
+ *       404:
+ *         description: Shipment not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ */
 shipmentRouter.get("/:id", authMiddleWare, async (req, res) => {
   try {
     const { id } = req.params;
@@ -77,6 +212,80 @@ shipmentRouter.get("/:id", authMiddleWare, async (req, res) => {
   }
 });
 
+/**
+ * @openapi
+ * /shipments/{id}/assign:
+ *  put:
+ *     tags:
+ *     - Shipments
+ *     summary: Assign officers to a shipment
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Shipment ID
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *              type: object
+ *              required:
+ *                - officerIds
+ *              properties:
+ *                officerIds:
+ *                  type: array
+ *                  items:
+ *                    type: string
+ *                  description: Array of Officer User IDs
+ *     responses:
+ *       200:
+ *         description: Officers assigned successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: officers assigned
+ *                 code:
+ *                   type: integer
+ *                   example: 200
+ *                 data:
+ *                   $ref: '#/components/schemas/Shipment'
+ *       400:
+ *         description: Invalid input or empty list
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ *       404:
+ *         description: Shipment not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ */
 shipmentRouter.put("/:id/assign", authMiddleWare, async (req, res) => {
   try {
     const { id } = req.params;
@@ -90,11 +299,11 @@ shipmentRouter.put("/:id/assign", authMiddleWare, async (req, res) => {
 
     const shipment = await Shipment.findByIdAndUpdate(
       id,
-      { assignedOfficers: officerIds },
+      { officersAssigned: officerIds },
       { new: true }
     )
       .populate("items")
-      .populate("assignedOfficers");
+      .populate("officersAssigned");
 
     if (!shipment) {
       return res.status(404).json({ error: "Shipment not found" });
