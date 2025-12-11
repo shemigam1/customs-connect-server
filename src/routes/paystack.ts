@@ -12,6 +12,37 @@ function calculateAmountInKobo(nairaAmount: number): number {
   return Math.round(nairaAmount * 1000); // Convert naira to kobo
 }
 
+/**
+ * @openapi
+ * /payments/init:
+ *  post:
+ *     tags:
+ *     - Payments
+ *     summary: Initialize a payment
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *              type: object
+ *              required:
+ *                - email
+ *                - amount
+ *              properties:
+ *                email:
+ *                  type: string
+ *                  default: jane.doe@example.com
+ *                amount:
+ *                  type: number
+ *                  default: 1000
+ *     responses:
+ *       200:
+ *         description: Payment initialized
+ *       400:
+ *         description: Invalid amount
+ *       500:
+ *         description: Internal server error
+ */
 paymentRouter.post("/init", async (req, res) => {
   try {
     const { email, amount } = req.body;
@@ -51,6 +82,32 @@ paymentRouter.post("/init", async (req, res) => {
   }
 });
 
+/**
+ * @openapi
+ * /payments/verify:
+ *  post:
+ *     tags:
+ *     - Payments
+ *     summary: Verify a payment
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *              type: object
+ *              required:
+ *                - reference
+ *              properties:
+ *                reference:
+ *                  type: string
+ *     responses:
+ *       200:
+ *         description: Payment verified
+ *       400:
+ *         description: Invalid transaction
+ *       500:
+ *         description: Internal server error
+ */
 paymentRouter.post("/verify", async (req, res) => {
   try {
     const { reference } = req.body;

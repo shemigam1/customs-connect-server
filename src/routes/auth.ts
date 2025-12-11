@@ -6,6 +6,39 @@ import User from "../models/user";
 
 const authRouter = Router();
 
+/**
+ * @openapi
+ * /auth/login:
+ *  post:
+ *     tags:
+ *     - Auth
+ *     summary: Login a user
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *              type: object
+ *              required:
+ *                - email
+ *                - password
+ *              properties:
+ *                email:
+ *                  type: string
+ *                  default: jane.doe@example.com
+ *                password:
+ *                  type: string
+ *                  default: stringPassword123
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *       400:
+ *         description: Invalid email or password
+ *       422:
+ *         description: Unprocessable entity
+ *       500:
+ *         description: Internal server error
+ */
 authRouter.post("/login", async (req, res) => {
   try {
     const email = req.body.email;
@@ -47,6 +80,14 @@ authRouter.post("/login", async (req, res) => {
       };
       const response = ResultFunction(true, "login successful", 200, data);
       return res.status(response.code).json(response);
+    } else {
+      const response = ResultFunction(
+        false,
+        "invalid email or password",
+        400,
+        null
+      );
+      return res.status(response.code).json(response);
     }
   } catch (error) {
     const response = ResultFunction(false, "something went wrong", 500, null);
@@ -54,6 +95,53 @@ authRouter.post("/login", async (req, res) => {
   }
 });
 
+/**
+ * @openapi
+ * /auth/signup:
+ *  post:
+ *     tags:
+ *     - Auth
+ *     summary: Register a new user
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *              type: object
+ *              required:
+ *                - name
+ *                - email
+ *                - password
+ *                - phoneNumber
+ *                - role
+ *                - orgId
+ *              properties:
+ *                name:
+ *                  type: string
+ *                  default: Jane Doe
+ *                email:
+ *                  type: string
+ *                  default: jane.doe@example.com
+ *                password:
+ *                  type: string
+ *                  default: stringPassword123
+ *                phoneNumber:
+ *                  type: string
+ *                  default: "+1234567890"
+ *                role:
+ *                  type: string
+ *                  default: "admin"
+ *                orgId:
+ *                  type: string
+ *                  default: "org-123"
+ *     responses:
+ *       201:
+ *         description: Signup successful
+ *       400:
+ *         description: Missing required fields or user already exists
+ *       500:
+ *         description: Internal server error
+ */
 authRouter.post(
   "/signup",
   async (req: Request, res: Response, next: NextFunction) => {
@@ -61,8 +149,11 @@ authRouter.post(
       const name = req.body.name;
       const email = req.body.email;
       const password = req.body.password;
+      const phoneNumber = req.body.phoneNumber;
+      const role = req.body.role;
+      const orgId = req.body.orgId;
 
-      if (!name || !email || !password) {
+      if (!name || !email || !password || !phoneNumber || !role || !orgId) {
         const response = ResultFunction(
           false,
           "missing required fields",
@@ -85,7 +176,7 @@ authRouter.post(
 
       try {
         const newUser = (
-          await User.create({ name, email, password })
+          await User.create({ name, email, password, phoneNumber, role, orgId })
         ).toObject();
         const { password: _pw, ...other } = newUser;
         const response = ResultFunction(true, "signup successful", 201, other);
