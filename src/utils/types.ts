@@ -17,6 +17,9 @@ export type LoginData = {
 export interface ISignup {
   name: string;
   email: string;
+  phoneNumber: string;
+  role: string;
+  orgId: string;
   password: string;
 }
 
