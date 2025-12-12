@@ -8,6 +8,9 @@ const ShipmentItemSchema: Schema = new Schema<IShipmentItem>({
   weight: { type: Number, required: true },
   description: { type: String, required: true },
   sku: { type: String },
+  hs_code: { type: String },
+  value: { type: Number },
+  currency: { type: String, default: 'NGN' }
 });
 
 const ShipmentItem = mongoose.model<IShipmentItem>(

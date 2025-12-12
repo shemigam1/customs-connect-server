@@ -314,8 +314,124 @@ shipmentRouter.put("/:id/assign", authMiddleWare, async (req, res) => {
       .json(ResultFunction(true, "officers assigned", 200, shipment));
   } catch (error) {
     res.status(500).json({
-      error:
-        error instanceof Error ? error.message : "Failed to assign officer",
     });
   }
 });
+
+/**
+ * @openapi
+ * /shipments/{id}/anchor:
+ *  get:
+ *     tags:
+ *     - Shipments
+ *     summary: Get blockchain anchor verification
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Shipment ID
+ *     responses:
+ *       200:
+ *         description: Anchor details retrieved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     merkle_root:
+ *                       type: string
+ *                     chain_tx_hash:
+ *                       type: string
+ *                     chain:
+ *                       type: string
+ *                     anchored_at:
+ *                       type: string
+ *                       format: date-time
+ *                     publisher:
+ *                       type: string
+ */
+shipmentRouter.get("/:id/anchor", authMiddleWare, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const shipment = await Shipment.findById(id);
+    if (!shipment) return res.status(404).json({ error: "Shipment not found" });
+
+    // Return the last anchor or all
+    // @ts-ignore
+    const anchors = shipment.anchors || [];
+    const latestAnchor = anchors.length > 0 ? anchors[anchors.length - 1] : null;
+
+    res.status(200).json(ResultFunction(true, "anchor retrieved", 200, latestAnchor));
+  } catch (error) {
+    res.status(500).json({ error: "Failed to retrieve anchor" });
+  }
+});
+
+/**
+ * @openapi
+ * /shipments/verify/{bl_number}:
+ *  get:
+ *     tags:
+ *     - Verification
+ *     summary: Verify shipment by BL Number (Public/semi-public)
+ *     description: Returns anchor data for verification screen
+ *     parameters:
+ *       - in: path
+ *         name: bl_number
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Verification data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                      verified:
+ *                          type: boolean
+ *                      anchor:
+ *                          type: object
+ */
+shipmentRouter.get("/verify/:bl_number", async (req, res) => {
+  try {
+    const { bl_number } = req.params;
+    const shipment = await Shipment.findOne({ bl_number });
+
+    if (!shipment) {
+      return res.status(404).json({ error: "Shipment not found" });
+    }
+
+    // @ts-ignore
+    const anchors = shipment.anchors || [];
+    const latestAnchor = anchors.length > 0 ? anchors[anchors.length - 1] : null;
+
+    res.status(200).json(ResultFunction(true, "verification data", 200, {
+      verified: !!latestAnchor,
+      anchor: latestAnchor,
+      shipmentId: shipment._id
+    }));
+  } catch (error) {
+    res.status(500).json({ error: "Verification failed" });
+  }
+});
+
+export default shipmentRouter;

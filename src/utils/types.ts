@@ -67,8 +67,11 @@ export interface IShipmentItem {
   name: string;
   quantity: number;
   weight: number;
-  description: string;
-  sku?: string;
+  description: { type: String, required: true },
+  sku?: { type: String },
+  hs_code?: string;
+  value?: number;
+  currency?: string;
 }
 
 export interface IShipmentDocument {
