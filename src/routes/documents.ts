@@ -251,3 +251,43 @@ shipmentRouter.get(
     }
   }
 );
+
+/**
+ * @openapi
+ * /shipments/{id}/documents:
+ *  get:
+ *     tags:
+ *     - Documents
+ *     summary: List all documents for a shipment
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: List of documents
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Document'
+ */
+shipmentRouter.get("/:id/documents", authMiddleWare, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const documents = await ShipmentDocument.find({ shipmentId: id }).populate('userId', 'name');
+    res.status(200).json(ResultFunction(true, "documents retrieved", 200, documents));
+  } catch (error) {
+    res.status(500).json({ error: "Failed to retrieve documents" });
+  }
+});

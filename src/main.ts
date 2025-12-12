@@ -9,6 +9,7 @@ import authRouter from "./routes/auth";
 import { paymentRouter } from "./routes/paystack";
 import messagesRouter from "./routes/messages";
 import { shipmentRouter } from "./routes/shipments";
+import { dashboardRouter } from "./routes/dashboard";
 import "./routes/documents"; // Attach document routes
 import { initSocket } from "./socket";
 
@@ -36,6 +37,7 @@ app.get("/health", (req: Request, res: Response) => {
 app.use("/payments", paymentRouter);
 app.use("/auth", authRouter);
 app.use("/shipments", shipmentRouter);
+app.use("/dashboard", dashboardRouter);
 app.use("/", messagesRouter);
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
